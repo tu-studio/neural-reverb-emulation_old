@@ -12,7 +12,7 @@ def submit_batch_job(index, latent_dim, kernel_size):
         "INDEX": str(index)
     }
     # Run sbatch command with the environment variables as bash! subprocess! command (otherwise module not found)
-    subprocess.run(['/usr/bin/bash', '-c', 'sbatch batchjob.sh'], env=env)
+    subprocess.run(['/usr/bin/bash', '-c', 'sbatch slurm_job.sh'], env=env)
 
 if __name__ == "__main__":
     latent_dim_list = [128, 64, 32]
