@@ -6,7 +6,6 @@ from utilities.evaluate import evaluate
 from torch.utils.data import  random_split, DataLoader
 from utilities.dataset import AudioDataset
 from utilities.metrics import spectral_distance
-from utils.config import load_params
 import random 
 import numpy as np
 import torchinfo
@@ -128,7 +127,7 @@ def main():
     n_inputs = params["train"]["n_inputs"]
     n_bands = params["train"]["n_bands"]
     latent_dim = params["train"]["latent_dim"]
-    n_epochs = params["train"]["n_epochs"]
+    n_epochs = params["train"]["epochs"]
     batch_size = params["train"]["batch_size"]
     kernel_size = params["train"]["kernel_size"]
     n_blocks = params["train"]["n_blocks"]
@@ -215,7 +214,7 @@ def main():
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
     # Get the rsync interval from the environment variables
-    logs_intervall = int(config.get_env_variable('TUSTU_LOGS_INTERVALL'))
+    logs_intervall = int(config.get_env_variable('TUSTU_LOGS_INTERVAL'))
     rsync_logs_enabled = ast.literal_eval(config.get_env_variable('TUSTU_RSYNC_LOGS_ENABLED')) # String to boolean
     default_dir =  config.get_env_variable('DEFAULT_DIR')
     project_name = config.get_env_variable('TUSTU_PROJECT_NAME')

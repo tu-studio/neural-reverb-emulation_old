@@ -37,11 +37,11 @@ stages:
     - train.input_file
     - train.name
     - train.input_size
-    - train.device
+    - train.device_request
     - train.n_inputs
     - train.n_bands
     - train.latent_dim
-    - train.n_epochs
+    - train.epochs
     - train.batch_size
     - train.kernel_size
     - train.n_blocks

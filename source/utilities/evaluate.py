@@ -1,6 +1,5 @@
 import torch
 from utilities.ravepqmf import PQMF, center_pad_next_pow_2
-from utils.save_logs import CustomSummaryWriter
 from utils import config
 import os
 
@@ -105,7 +104,7 @@ def evaluate(encoder, decoder, test_loader, criterion, tensorboard_writer, devic
         tensorboard_writer.add_scalar("Test Loss/KL Divergence", test_avg_kl_div, 0)
     
     print("Copying logs to host")
-    os.system(f"rsync -r --inplace {tensorboard_writer.get_logdir()} {config.get_env_variable('TUSTU_TENSORBOARD_HOST')}:Data/{config.get_env_variable('TUSTU_PROJECT_NAME')}")
+    os.system(f"rsync -rv --progress --inplace {tensorboard_writer.get_logdir()} {config.get_env_variable('TUSTU_TENSORBOARD_HOST')}:Data/{config.get_env_variable('TUSTU_PROJECT_NAME')}")
 
     tensorboard_writer.close()
 

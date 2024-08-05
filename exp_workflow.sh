@@ -1,3 +1,5 @@
+#! /bin/bash
+
 # Description: This script runs an experiment with DVC within a temporary directory copy and pushes the results to the dvc remote repository.
 
 # Set environment variables defined in global.env
@@ -28,7 +30,9 @@ echo "Copying files..." &&
 {
 # Add all git-tracked files
 git ls-files;
-echo ".dvc/config.local";
+if [ -f ".dvc/config.local" ]; then
+    echo ".dvc/config.local";
+fi;
 echo ".git";
 } | while read file; do
     rsync -aR "$file" $TUSTU_EXP_TMP_DIR;
@@ -43,7 +47,10 @@ dvc cache dir $DEFAULT_DIR/.dvc/cache &&
 
 # Pull the data from the DVC remote repository
 echo "Pulling data with DVC..." &&
-dvc pull data/raw &&
+
+if [ -f "data/raw.dvc" ]; then
+    dvc pull data/raw;
+fi;
 
 # Run the experiment with passed parameters. Runs with the default parameters if none are passed.
 echo "Running experiment..." &&
