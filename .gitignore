@@ -1,0 +1,27 @@
+# Ignore typical temporary and system files
+.DS_Store
+__pycache__/
+
+# Ignore Python virtual environments
+venv
+
+# Ignore local environment variables
+local.env
+
+# Ignore data files
+data/*/*
+logs/*/*
+/dvclive
+/models
+/tmp
+/exp_logs/*
+
+# Not ignore
+!logs/*/.gitkeep
+!*.dvc
+
+# Ignore personal notes
+NOTES.md
+
+# Ignore singularity image
+ml-pipeline-image_latest.sif
