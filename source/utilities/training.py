@@ -219,4 +219,3 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
     tensorboard_writer.flush()
 
     print('Finished Training')
-
