@@ -213,14 +213,6 @@ def main():
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
 
-    # Get the rsync interval from the environment variables
-    logs_intervall = int(config.get_env_variable('TUSTU_LOGS_INTERVAL'))
-    rsync_logs_enabled = ast.literal_eval(config.get_env_variable('TUSTU_RSYNC_LOGS_ENABLED')) # String to boolean
-    default_dir =  config.get_env_variable('DEFAULT_DIR')
-    project_name = config.get_env_variable('TUSTU_PROJECT_NAME')
-    if rsync_logs_enabled:
-        tensorboard_host = config.get_env_variable('TUSTU_TENSORBOARD_HOST')
-
     # Train the model
     train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tensorboard_writer=writer, num_epochs=n_epochs, device=device, n_bands=n_bands, use_kl=use_kl, sample_rate=sample_rate)
 
