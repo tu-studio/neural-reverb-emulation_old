@@ -5,12 +5,12 @@ on:
     paths:
       - 'Dockerfile'
       - 'requirements.txt'
-      - '.github/workflows/docker-image.yml'
+      - '.github/workflows/docker_image.yml'
   pull_request:
     paths:
       - 'Dockerfile'
       - 'requirements.txt'
-      - '.github/workflows/docker-image.yml'
+      - '.github/workflows/docker_image.yml'
 
 jobs:
   build:
