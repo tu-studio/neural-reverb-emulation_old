@@ -16,13 +16,13 @@ train:
   input_file: data/processed/preprocessed_data.pt
   name: model
   input_size: 524288
-  device_request: 'cuda'
+  device_request: cuda
   n_inputs: 1
   n_bands: 16
-  latent_dim: 128
+  latent_dim: 32
   epochs: 1
   batch_size: 32
-  kernel_size: 13
+  kernel_size: 20
   n_blocks: 3
   dilation_growth: 10
   n_channels: 32
