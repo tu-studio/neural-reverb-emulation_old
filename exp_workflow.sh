@@ -17,7 +17,7 @@ fi &&
 
 # Create a new sub-directory in the temporary directory for the experiment
 echo "Creating temporary sub-directory..." &&
-HOSTNAME=$(hostname) &&
+# HOSTNAME=$(hostname) &&
 # Generate a unique ID with the current timestamp, process ID, and hostname for the sub-directory
 UNIQUE_ID=$(date +%s)-$$-$HOSTNAME &&
 TUSTU_EXP_TMP_DIR="$TUSTU_TMP_DIR/$UNIQUE_ID" &&
