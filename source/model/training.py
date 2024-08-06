@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.nn.utils import clip_grad_norm_
-from model.ravepqmf import PQMF,  center_pad_next_pow_2
+from network.ravepqmf import PQMF,  center_pad_next_pow_2
 from utils import config
 import os
 

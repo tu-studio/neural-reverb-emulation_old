@@ -1,11 +1,11 @@
 import torch
-from model.encoder import EncoderTCN
-from model.decoder import DecoderTCN
-from model.training import train
-from model.evaluate import evaluate
+from network.encoder import EncoderTCN
+from network.decoder import DecoderTCN
+from network.training import train
+from network.evaluate import evaluate
 from torch.utils.data import  random_split, DataLoader
-from model.dataset import AudioDataset
-from model.metrics import spectral_distance
+from network.dataset import AudioDataset
+from network.metrics import spectral_distance
 import random 
 import numpy as np
 import torchinfo
@@ -175,10 +175,10 @@ def main():
 
     # TODO: Implement this
     # # Save the model checkpoint
-    # output_file_path = Path('model/checkpoints/model.pth')
+    # output_file_path = Path('model/checkpoints/network.pth')
     # output_file_path.parent.mkdir(parents=True, exist_ok=True)
-    # torch.save(model.state_dict(), output_file_path)
-    # print("Saved PyTorch Model State to model.pth")
+    # torch.save(network.state_dict(), output_file_path)
+    # print("Saved PyTorch Model State to network.pth")
 
     print("Done with the training stage!")
 

@@ -3,7 +3,7 @@ import random
 import numpy as np
 from pedalboard import Pedalboard, load_plugin
 from pedalboard.io import AudioFile
-from model.dataset import AudioDataset
+from network.dataset import AudioDataset
 from utils import config
 
 # Load the hyperparameters from the params yaml file into a Dictionary

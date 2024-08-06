@@ -1,5 +1,5 @@
 import torch
-from model.ravepqmf import PQMF, center_pad_next_pow_2
+from network.ravepqmf import PQMF, center_pad_next_pow_2
 from utils import config
 import os
 
