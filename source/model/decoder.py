@@ -54,16 +54,15 @@ class DecoderTCN(torch.nn.Module):
         self.conv_decode = torch.nn.Conv1d(latent_dim, initial_channels, 1)
 
         self.blocks = torch.nn.ModuleList()
-        for n in range(n_blocks):
-            if n == 0:
-                if n_blocks == 1:
-                    in_ch = n_channels
-                    out_ch = n_outputs
-                else:
-                    in_ch = n_channels * (2 ** (n_blocks -1))
-                    out_ch = n_channels * (2 ** (n_blocks - 2))
-                act = True
-            elif (n+1) == n_blocks:
+        if n_blocks == 1:
+            in_ch = n_channels
+            out_ch = n_outputs
+        else:
+            in_ch = n_channels * (2 ** (n_blocks - 1))
+            out_ch = n_channels * (2 ** (n_blocks - 2))
+        act = True
+        for n in range(1, n_blocks):
+            if (n+1) == n_blocks:
                 in_ch = in_ch
                 out_ch = n_outputs
                 act = True

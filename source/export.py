@@ -16,12 +16,12 @@ def main():
     model = NeuralNetwork(conv1d_filters, conv1d_strides, hidden_units)
 
     # Load the model state
-    input_file_path = Path('models/checkpoints/model.pth')
+    input_file_path = Path('model/checkpoints/model.pth')
     model.load_state_dict(torch.load(input_file_path, map_location=torch.device('cpu')))
 
     # Export the model
     example = torch.rand(1, 1, input_size)
-    output_file_path = Path('models/exports/model.onnx') 
+    output_file_path = Path('model/exports/model.onnx') 
     output_file_path.parent.mkdir(parents=True, exist_ok=True)
     torch.onnx.export(model, example, output_file_path, export_params=True, opset_version=17, do_constant_folding=True,
                       input_names=['input'], output_names=['output'],

@@ -1,5 +1,5 @@
 import torch
-from utilities.ravepqmf import PQMF, center_pad_next_pow_2
+from model.ravepqmf import PQMF, center_pad_next_pow_2
 from utils import config
 import os
 
@@ -7,7 +7,7 @@ def evaluate(encoder, decoder, test_loader, criterion, tensorboard_writer, devic
     encoder.to(device)
     decoder.to(device)
     
-    # Set models to evaluation mode
+    # Set model to evaluation mode
     encoder.eval()
     decoder.eval()
     

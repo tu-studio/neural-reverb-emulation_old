@@ -1,11 +1,11 @@
 import torch
-from models.encoder import EncoderTCN
-from models.decoder import DecoderTCN
-from utilities.training import train
-from utilities.evaluate import evaluate
+from model.encoder import EncoderTCN
+from model.decoder import DecoderTCN
+from model.training import train
+from model.evaluate import evaluate
 from torch.utils.data import  random_split, DataLoader
-from utilities.dataset import AudioDataset
-from utilities.metrics import spectral_distance
+from model.dataset import AudioDataset
+from model.metrics import spectral_distance
 import random 
 import numpy as np
 import torchinfo
@@ -68,57 +68,6 @@ def set_random_seed(random_seed):
         sklearn.utils.random.seed(random_seed)
     else:
         print("The 'sklearn' package is not imported, skipping sklearn seed.")
-
-
-
-def train_epoch(dataloader, model, loss_fn, optimizer, device, writer, epoch):
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
-    train_loss = 0 
-    model.train()
-    for batch, (X, y) in enumerate(dataloader):
-        X, y = X.to(device), y.to(device)
-        pred = model(X)
-        loss = loss_fn(pred, y)
-        loss.backward()
-        optimizer.step()
-        optimizer.zero_grad()
-        writer.add_scalar("Step_Loss/train", loss.item(), batch + epoch * len(dataloader))
-        train_loss += loss.item()
-        if batch % 100 == 0:
-            loss_value = loss.item()
-            current = (batch + 1) * len(X)
-            print(f"loss: {loss_value:>7f}  [{current:>5d}/{size:>5d}]")
-    train_loss /=  num_batches
-    return train_loss
-    
-
-def test_epoch(dataloader, model, loss_fn, device, writer):
-    num_batches = len(dataloader)
-    model.eval()
-    test_loss = 0
-    with torch.no_grad():
-        for X, y in dataloader:
-            X, y = X.to(device), y.to(device)
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-    test_loss /= num_batches
-    print(f"Test Error: \n Avg loss: {test_loss:>8f} \n")
-    return test_loss
-
-def generate_audio_example(model, device, dataloader):
-    print("Running audio prediction...")
-    prediction = torch.zeros(0).to(device)
-    target = torch.zeros(0).to(device)
-    with torch.no_grad():
-        for X, y in dataloader:
-            X = X.to(device)
-            y = y.to(device)
-            predicted_batch = model(X)
-            prediction = torch.cat((prediction, predicted_batch.flatten()), 0)
-            target = torch.cat((target, y.flatten()), 0)
-    audio_example = torch.cat((target, prediction), 0)
-    return audio_example
 
 def main():
     # Load the hyperparameters from the params yaml file into a Dictionary
@@ -226,7 +175,7 @@ def main():
 
     # TODO: Implement this
     # # Save the model checkpoint
-    # output_file_path = Path('models/checkpoints/model.pth')
+    # output_file_path = Path('model/checkpoints/model.pth')
     # output_file_path.parent.mkdir(parents=True, exist_ok=True)
     # torch.save(model.state_dict(), output_file_path)
     # print("Saved PyTorch Model State to model.pth")

@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.nn.utils import clip_grad_norm_
-from utilities.ravepqmf import PQMF,  center_pad_next_pow_2
+from model.ravepqmf import PQMF,  center_pad_next_pow_2
 from utils import config
 import os
 
@@ -32,9 +32,11 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
            
             dry_audio = dry_audio.view(1, 1, -1)
             wet_audio = wet_audio.view(1, 1, -1)
-            wet_audio = wet_audio[:,:, :dry_audio.shape[-1]]
-            
 
+            # Throw error if wet audio is longer than dry audio
+            if wet_audio.shape[-1] != dry_audio.shape[-1]:
+                raise ValueError(f"Wet audio is not the same length than dry audio: {wet_audio.shape[-1]} vs {dry_audio.shape[-1]}")
+            
             dry_audio, wet_audio = dry_audio.to(device), wet_audio.to(device)
 
             # Pad both dry and wet audio to next power of 2
@@ -44,9 +46,6 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             # Apply PQMF to input
             dry_audio_decomposed = pqmf(dry_audio)
             wet_audio_decomposed = pqmf(wet_audio)
-
-            audio_difference_decomposed = wet_audio_decomposed - dry_audio_decomposed
-            audio_difference = wet_audio - dry_audio
  
             # Zero the parameter gradients
             optimizer.zero_grad()
@@ -59,7 +58,7 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 encoder_outputs.append(x)
     
             # Get the final encoder output
-            z= encoder_outputs.pop()
+            z = encoder_outputs.pop()
 
             # Reverse the list of encoder outputs for the decoder
             encoder_outputs = encoder_outputs[::-1]
@@ -77,14 +76,13 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
             net_outputs = pqmf.inverse(net_outputs_decomposed)
 
-            # # Trim outputs to original length
-            original_length = dry_audio.shape[-1]
-            net_outputs = net_outputs[..., :original_length]
-            wet_audio = wet_audio[..., :original_length]
-            dry_audio = dry_audio[..., :original_length]
+            # Check that net outputs are the same length as the dry audio
+            if net_outputs.shape[-1] != dry_audio.shape[-1]:
+                raise ValueError(f"Net outputs are not the same length as the dry audio {net_outputs.shape[-1]} vs {dry_audio.shape[-1]}")
 
             # Compute loss
             loss = criterion(net_outputs + dry_audio, wet_audio)
+
             if use_kl:
                 loss += kl_div
           
@@ -95,7 +93,6 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             train_epoch_loss += loss 
             
             train_epoch_criterion += loss
-            
 
             # Backward pass and optimization
             loss.backward()

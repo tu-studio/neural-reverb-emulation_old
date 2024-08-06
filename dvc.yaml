@@ -3,7 +3,7 @@ stages:
   #   cmd: python source/preprocess.py
   #   deps:
   #   - source/preprocess.py
-  #   - source/utilities/dataset.py
+  #   - source/model/dataset.py
   #   - data/raw/
   #   params:
   #   - preprocess.input_directory
@@ -24,12 +24,12 @@ stages:
     cmd: python3 source/train.py
     deps:
     - source/train.py
-    - source/models/
-    - source/utilities/dataset.py
-    - source/utilities/metrics.py
-    - source/utilities/training.py
-    - source/utilities/evaluate.py
-    - source/utilities/ravepqmf.py
+    - source/model/
+    - source/model/dataset.py
+    - source/model/metrics.py
+    - source/model/training.py
+    - source/model/evaluate.py
+    - source/model/ravepqmf.py
     - data/processed/
     params:
     - general.random_seed
@@ -50,17 +50,17 @@ stages:
     - train.lr
     - train.use_kl
   #   outs:
-  #   - models/checkpoints/
+  #   - model/checkpoints/
   # export:
   #   cmd: python3 source/export.py
   #   deps:
   #   - source/export.py
-  #   - models/checkpoints/
+  #   - model/checkpoints/
   #   params:
   #   - general.input_size
   #   - train.train_mode
   #   outs:
-  #   - models/exports/
+  #   - model/exports/
   save_logs:
     cmd: python3 source/utils/logs.py
     outs:

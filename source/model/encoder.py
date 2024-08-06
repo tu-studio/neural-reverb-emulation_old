@@ -10,8 +10,8 @@ class EncoderTCNBlock(torch.nn.Module):
         dilation=dilation, 
         padding=0,
         bias=True)
-    torch.nn.init.xavier_uniform_(self.conv.weight) 
-    torch.nn.init.zeros_(self.conv.bias) 
+    # torch.nn.init.xavier_uniform_(self.conv.weight) 
+    # torch.nn.init.zeros_(self.conv.bias)
 
     # Activation function
     if activation:

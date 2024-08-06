@@ -12,7 +12,7 @@ local.env
 data/*/*
 logs/*/*
 /dvclive
-/models
+/model
 /tmp
 /exp_logs/*
 
