@@ -16,7 +16,6 @@ def submit_batch_job(index, latent_dim, kernel_size, n_blocks):
 
 if __name__ == "__main__":
     latent_dim_list = [128, 64, 32]
-    kernel_size_list = [13, 16, 20]
     n_blocks_list = [3, 4, 5]  
-    for index, (latent_dim, kernel_size, n_blocks) in enumerate(itertools.product(latent_dim_list, kernel_size_list, n_blocks_list)):
-        submit_batch_job(index, latent_dim, kernel_size, n_blocks)
+    for index, (latent_dim, n_blocks) in enumerate(itertools.product(latent_dim_list, n_blocks_list)):
+        submit_batch_job(index, latent_dim, n_blocks)
