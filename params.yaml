@@ -1,6 +1,7 @@
 general:
   sample_rate: 44100
   random_seed: 55
+  input_size: 524288
 # preprocess:
 #   board_chunk_size: 1024
 #   sliding_mean_length: 200
@@ -15,15 +16,14 @@ general:
 train:
   input_file: data/processed/preprocessed_data.pt
   name: model
-  input_size: 524288
   device_request: 'cuda'
   n_inputs: 1
-  n_bands: 16
+  n_bands: 1
   latent_dim: 128
   epochs: 1
-  batch_size: 32
-  kernel_size: 13
-  n_blocks: 3
+  batch_size: 1
+  kernel_size: 32
+  n_blocks: 4
   dilation_growth: 10
   n_channels: 32
   lr: 0.00001

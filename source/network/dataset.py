@@ -6,9 +6,8 @@ from pedalboard.io import AudioFile
 import numpy as np
 
 class AudioDataset(Dataset):
-    def __init__(self, file_path, apply_augmentations=False):
-        self.apply_augmentations = apply_augmentations
-        
+    def __init__(self, file_path):
+
         # Load the data from the file, either pickle or pt
         if file_path.endswith('.pt'):
             data = self.load_from_pt(file_path)
@@ -24,55 +23,9 @@ class AudioDataset(Dataset):
 
     def __len__(self):
         return len(self.batches)
-    
-    def dequantize(self, audio, bits=16):
-        """Add dequantization noise to the audio."""
-        audio = audio.astype(np.float64)
-        noise = np.random.rand(*audio.shape) / (2**(bits - 1))
-        return audio + noise
-
-    def random_crop(self, audio, target_length):
-        """Randomly crop the audio to a specified length."""
-        audio = audio.astype(np.float64)
-        if audio.shape[-1] > target_length:
-            start = np.random.randint(0, audio.shape[-1] - target_length)
-            return audio[..., start:start+target_length]
-        return audio
-    
-    def allpass_filter(self, audio):
-        """Apply an allpass filter with random coefficients."""
-        audio = audio.astype(np.float64)
-        coeff = np.float64(np.random.rand() * 2 - 1)  # Random coefficient between -1 and 1
-        
-        output = np.zeros_like(audio, dtype=np.float64)
-        x1, x2, y1, y2 = np.float64(0), np.float64(0), np.float64(0), np.float64(0)
-        
-        for i in range(audio.shape[-1]):
-            x0 = audio[..., i]
-            y0 = coeff * (x0 - y2) + x2
-            
-            output[..., i] = y0
-            
-            x2, x1 = x1, x0
-            y2, y1 = y1, y0
-        
-        return output
 
     def __getitem__(self, idx):
         dry_audio, wet_audio = self.batches[idx]
-
-        # Apply augmentations
-        if self.apply_augmentations:
-            dry_audio = self.dequantize(dry_audio)
-            wet_audio = self.dequantize(wet_audio)
-            
-            # Ensure both audios have the same length after random crop
-            min_length = min(dry_audio.shape[-1], wet_audio.shape[-1])
-            dry_audio = self.random_crop(dry_audio, min_length)
-            wet_audio = self.random_crop(wet_audio, min_length)
-            
-            dry_audio = self.allpass_filter(dry_audio)
-            wet_audio = self.allpass_filter(wet_audio)
 
         return torch.tensor(dry_audio), torch.tensor(wet_audio)
 

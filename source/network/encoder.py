@@ -18,23 +18,16 @@ class EncoderTCNBlock(torch.nn.Module):
       self.act = torch.nn.PReLU()
     
     # Residual connection
-    self.res = torch.nn.Conv1d(in_channels, out_channels, 1, bias=False)
+    # self.res = torch.nn.Conv1d(in_channels, out_channels, 1, bias=False)
     # torch.nn.init.xavier_uniform_(self.res.weight)
 
     self.kernel_size = kernel_size
     self.dilation = dilation
 
   def forward(self, x):
-    x_in = x
     x = self.conv(x)
     if hasattr(self, "act"):
       x = self.act(x)
-    x_res = self.res(x_in)
-
-    # Take into account the dilation factor
-    x_res = x_res[..., (self.kernel_size-1)*self.dilation:]
-
-    x = x + x_res
     return x
 
 class EncoderTCN(torch.nn.Module):
@@ -48,6 +41,7 @@ class EncoderTCN(torch.nn.Module):
     self.latent_dim = latent_dim
 
     self.blocks = torch.nn.ModuleList()
+    print(f"Building EncoderTCN with {n_blocks} blocks")
     for n in range(n_blocks):
         if n == 0:
             in_ch = n_inputs
@@ -58,8 +52,9 @@ class EncoderTCN(torch.nn.Module):
             out_ch = in_ch * 2 # Double the number of channels at each block
             act = True
         
-        dilation = dilation_growth ** n
+        dilation = dilation_growth ** (n + 1)
         self.blocks.append(EncoderTCNBlock(in_ch, out_ch, kernel_size, dilation, activation=act))
+        print(f"Appended block {n} with in_ch={in_ch}, kernel_size={kernel_size}, out_ch={out_ch}, dilation={dilation}.")
         in_ch = out_ch # Update in_ch for the next block
 
     # Use 1D convolutions to compute mean and log-variance

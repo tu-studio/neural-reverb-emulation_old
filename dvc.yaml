@@ -34,9 +34,9 @@ stages:
     params:
     - general.random_seed
     - general.sample_rate
+    - general.input_size
     - train.input_file
     - train.name
-    - train.input_size
     - train.device_request
     - train.n_inputs
     - train.n_bands
@@ -50,17 +50,17 @@ stages:
     - train.lr
     - train.use_kl
   #   outs:
-  #   - network/checkpoints/
+  #   - model/checkpoints/
   # export:
   #   cmd: python3 source/export.py
   #   deps:
   #   - source/export.py
-  #   - network/checkpoints/
+  #   - model/checkpoints/
   #   params:
   #   - general.input_size
   #   - train.train_mode
   #   outs:
-  #   - network/exports/
+  #   - model/exports/
   save_logs:
     cmd: python3 source/utils/logs.py
     outs:

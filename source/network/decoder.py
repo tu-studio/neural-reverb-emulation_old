@@ -18,8 +18,8 @@ class DecoderTCNBlock(torch.nn.Module):
             self.act = torch.nn.PReLU()
 
         # Residual connection
-        self.res = torch.nn.Conv1d(in_channels, out_channels, 1, bias=True)
-        torch.nn.init.xavier_uniform_(self.res.weight)
+        # self.res = torch.nn.Conv1d(in_channels, out_channels, 1, bias=True)
+        # torch.nn.init.xavier_uniform_(self.res.weight)
 
         # Learnable parameter for scaling the skip connection
         self.alpha = torch.nn.Parameter(torch.tensor(1.0))
@@ -28,17 +28,11 @@ class DecoderTCNBlock(torch.nn.Module):
         self.dilation = dilation
 
     def forward(self, x, skip=None):
-        # features = []
-        x_in = x
-        x_out = self.conv(x_in)
-        # x = torch.cat([x, skip], dim=1)
-        # features.append(x) 
+        x = self.conv(x)
         if hasattr(self, "act"):
-            x_out = self.act(x_out)
-
-        # features.append(x)
-        x_out = x_out + self.alpha * skip
-        return x_out
+            x = self.act(x)
+        x = x + self.alpha * skip
+        return x
 
 class DecoderTCN(torch.nn.Module):
     def __init__(self, n_outputs=1, n_blocks=10, kernel_size=13, n_channels=64, dilation_growth=4, latent_dim=16, use_kl=False):
@@ -53,35 +47,32 @@ class DecoderTCN(torch.nn.Module):
         initial_channels = n_channels * (2 ** (n_blocks - 1))
         self.conv_decode = torch.nn.Conv1d(latent_dim, initial_channels, 1)
 
+        print(f"Building DecoderTCN with {n_blocks} blocks")
         self.blocks = torch.nn.ModuleList()
-        if n_blocks == 1:
-            in_ch = n_channels
-            out_ch = n_outputs
-        else:
-            in_ch = n_channels * (2 ** (n_blocks - 1))
-            out_ch = n_channels * (2 ** (n_blocks - 2))
-        act = True
-        for n in range(1, n_blocks):
-            if (n+1) == n_blocks:
+
+        in_ch = n_channels * (2 ** (n_blocks - 1))
+        for n in range(0, n_blocks):
+            if n_blocks == 1:
+                in_ch = n_channels
+                out_ch = n_outputs
+            elif (n+1) == n_blocks:
                 in_ch = in_ch
                 out_ch = n_outputs
-                act = True
             else:
                 in_ch = in_ch
                 out_ch = in_ch // 2 # Divide the number of channels at each block
-                act = True
             
-            dilation = dilation_growth ** (n_blocks - n - 1)
+            act = True
+            dilation = dilation_growth ** (n_blocks - n)
+            print(f"Appended block {n} with in_ch={in_ch}, kernel_size={kernel_size}, out_ch={out_ch}, dilation={dilation}.")
             self.blocks.append(DecoderTCNBlock(in_ch, out_ch, kernel_size, dilation, activation=act))
             if (n+1) != n_blocks:
                 in_ch = out_ch # Update in_ch for the next block
-
-
 
     def forward(self, x, skips):
         if self.use_kl:
             x = self.conv_decode(x)
 
-        for block, skip in zip(self.blocks, skips):
+        for i, (block, skip) in enumerate(zip(self.blocks, skips)):
             x = block(x, skip)
         return x

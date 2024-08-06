@@ -87,6 +87,7 @@ def main():
     device_request = params["train"]["device_request"]
     random_seed = params["general"]["random_seed"]
     input_file = params["train"]["input_file"]
+    input_size = params["general"]["input_size"]
 
     # Define and create the path to the tensorboard logs directory in the source repository
     default_dir = config.get_env_variable('DEFAULT_DIR')
@@ -126,6 +127,25 @@ def main():
         latent_dim=latent_dim,
         use_kl=use_kl)
     
+    random_input = torch.randn(1, n_bands, input_size)
+    random_skips = []
+    x = random_input
+    for block in encoder.blocks:
+        x = block(x)
+        random_skips.append(x)
+    random_skips.pop()
+    random_skips = random_skips[::-1]
+    random_skips.append(random_input)
+
+    print("Encoder Architecture")
+    print("Input shape: ", random_input.shape)
+    torchinfo.summary(encoder, input_data=random_input, device=device)
+
+    print("Decoder Architecture")
+    print("Input shape: ", x.shape)
+    print("Random skips shape: ", [i.shape for i in random_skips])
+    torchinfo.summary(decoder, input_data=[x, random_skips], device=device)
+    
     # setup loss function, optimizer, and scheduler
     criterion = spectral_distance
 
@@ -140,7 +160,7 @@ def main():
     # writer.add_graph(model, sample_inputs.to(device))
 
     # Load the dataset
-    full_dataset = AudioDataset(input_file, apply_augmentations=False)
+    full_dataset = AudioDataset(input_file)
 
       # Define the sizes of your splits
     total_size = len(full_dataset)
@@ -151,11 +171,20 @@ def main():
     # Get the sample rate
     sample_rate = full_dataset.get_sample_rate()
 
+    print(f"Full dataset size: {total_size}")
+    print(f"Full dataset: {full_dataset}")
+
     # Create the splits
     train_dataset, val_dataset, test_dataset = random_split(
         full_dataset, [train_size, val_size, test_size],
         generator=torch.Generator().manual_seed(random_seed)
     )
+
+    print(f"Train dataset size: {len(train_dataset)}")
+    print(f"Validation dataset size: {len(val_dataset)}")
+    print(f"Test dataset size: {len(test_dataset)}")
+
+    print(f"Train dataset: {train_dataset}")
 
     # Create the DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
