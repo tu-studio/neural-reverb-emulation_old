@@ -19,7 +19,7 @@ class EncoderTCNBlock(torch.nn.Module):
     
     # Residual connection
     self.res = torch.nn.Conv1d(in_channels, out_channels, 1, bias=False)
-    torch.nn.init.xavier_uniform_(self.res.weight)
+    # torch.nn.init.xavier_uniform_(self.res.weight)
 
     self.kernel_size = kernel_size
     self.dilation = dilation
