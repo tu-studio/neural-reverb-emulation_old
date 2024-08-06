@@ -3,12 +3,12 @@ import subprocess
 import os 
 
 # Submit experiment for hyperparameter combination
-def submit_batch_job(index, latent_dim, kernel_size):
+def submit_batch_job(index, latent_dim, kernel_size, n_blocks):
     # Set dynamic parameters for the batch job as environment variables
     # But dont forget to add the os.environ to the new environment variables otherwise the PATH is not found
     env = {
         **os.environ,
-        "EXP_PARAMS": f"-S train.latent_dim={latent_dim} -S train.kernel_size={kernel_size}",
+        "EXP_PARAMS": f"-S train.latent_dim={latent_dim} -S train.kernel_size={kernel_size} -S train.n_blocks={n_blocks}",
         "INDEX": str(index)
     }
     # Run sbatch command with the environment variables as bash! subprocess! command (otherwise module not found)
@@ -17,5 +17,6 @@ def submit_batch_job(index, latent_dim, kernel_size):
 if __name__ == "__main__":
     latent_dim_list = [128, 64, 32]
     kernel_size_list = [13, 16, 20]
-    for index,(latent_dim, kernel_size) in enumerate(itertools.product(latent_dim_list, kernel_size_list)):
-        submit_batch_job(index,latent_dim,kernel_size)
+    n_blocks_list = [3, 4, 5]  
+    for index, (latent_dim, kernel_size, n_blocks) in enumerate(itertools.product(latent_dim_list, kernel_size_list, n_blocks_list)):
+        submit_batch_job(index, latent_dim, kernel_size, n_blocks)
