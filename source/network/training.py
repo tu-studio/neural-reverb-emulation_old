@@ -111,9 +111,9 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
                 loss = criterion(output_decomposed, wet_audio_decomposed)
 
-                if batch == 0: 
-                    plot_spectrums(x, y)
-                    plot_distance_spectrums(x, y)
+                # if batch == 0: 
+                #     plot_spectrums(x, y)
+                #     plot_distance_spectrums(x, y)
 
                 # output = output_decomposed
 
