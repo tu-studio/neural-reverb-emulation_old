@@ -30,6 +30,12 @@ def load_reverb():
     plate_reverb.blend_dry_wet = 1
     return Pedalboard([plate_reverb])
 
+def normalize_audio(audio):
+    max_val = np.max(np.abs(audio))
+    if max_val > 1.0:
+        return audio / max_val
+    return audio
+
 def apply_zero_padding(audio, pad_length):
     # Check if padding is necessary
     if pad_length <= 0:
@@ -217,7 +223,12 @@ def apply_wet_processing(dry_directory, wet_directory, board):
                     audio = f.read(f.frames)
                     sample_rate = f.samplerate
 
+                # manage clipping
+                audio = normalize_audio(audio)
+
                 wet_audio = process_audio_with_reverb(audio, board, sample_rate, CONFIG['BOARD_CHUNK_SIZE'])
+                wet_audio = normalize_audio(wet_audio)
+                
                 wet_file_path = os.path.join(wet_directory, file_name)
 
                 with AudioFile(wet_file_path, 'w', sample_rate, wet_audio.shape[0]) as f:
