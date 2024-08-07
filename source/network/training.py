@@ -109,12 +109,17 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
                 output_decomposed = net_outputs_decomposed + dry_audio_decomposed
 
-                loss = criterion(output_decomposed, wet_audio_decomposed)
+                # loss = criterion(output_decomposed, wet_audio_decomposed)
+
+                output = pqmf.inverse(output_decomposed)
+                wet = pqmf.inverse(wet_audio_decomposed)
+
+                loss = criterion(output, wet)
 
                 if batch == 0: 
                 #     # Assuming x and y are your input tensors
-                    plot_spectrums_tensorboard(tensorboard_writer, x, y, step=0)
-                    plot_distance_spectrums_tensorboard(tensorboard_writer, x, y, step=0)
+                    plot_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
+                    plot_distance_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
 
                 # output = output_decomposed
 
