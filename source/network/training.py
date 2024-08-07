@@ -137,8 +137,11 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             if use_kl:
                 tensorboard_writer.add_scalar("Loss/training kl_div", train_avg_epoch_kl_div, epoch)
             # Log audio samples
-            tensorboard_writer.add_audio("Audio/TCN_Input", dry_audio[-1, ...].cpu().squeeze(0), epoch, sample_rate=sample_rate)
-            tensorboard_writer.add_audio("Audio/TCN_Target", wet_audio[-1, ...].cpu().squeeze(0), epoch, sample_rate=sample_rate)
+            print(dry_audio.shape)
+            print(wet_audio.shape)
+            print(output.shape)
+            tensorboard_writer.add_audio("Audio/TCN_Input", dry_audio[-1, 0, :].cpu().cpu().squeeze(0), epoch, sample_rate=sample_rate)
+            tensorboard_writer.add_audio("Audio/TCN_Target", wet_audio[-1, 0, :].cpu().cpu().squeeze(0), epoch, sample_rate=sample_rate)
             tensorboard_writer.add_audio("Audio/TCN_output", output.cpu().squeeze(0), epoch, sample_rate=sample_rate)
 
             print(f'Epoch {epoch}/{num_epochs}, Training Loss: {train_avg_epoch_loss}')
