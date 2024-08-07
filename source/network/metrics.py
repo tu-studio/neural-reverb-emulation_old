@@ -46,33 +46,21 @@ def spectral_distance(x, y):
 
     return lin + log
 
-# import matplotlib.pyplot as plt
-
-# def plot_spectrums(x, y, scales=[2048, 1024, 512, 256, 128]):
-#     x_stfts = multiscale_stft(x, scales, .75)
-#     y_stfts = multiscale_stft(y, scales, .75)
+def plot_spectrums_tensorboard(writer, x, y, scales=[2048, 1024, 512, 256, 128], step=0):
+    x_stfts = multiscale_stft(x, scales, .75)
+    y_stfts = multiscale_stft(y, scales, .75)
     
-#     fig, axs = plt.subplots(len(scales), 2, figsize=(12, 4*len(scales)))
-#     for i, scale in enumerate(scales):
-#         axs[i, 0].imshow(x_stfts[i][0].cpu().numpy(), aspect='auto', origin='lower')
-#         axs[i, 0].set_title(f'Input STFT (scale {scale})')
-#         axs[i, 1].imshow(y_stfts[i][0].cpu().numpy(), aspect='auto', origin='lower')
-#         axs[i, 1].set_title(f'Output STFT (scale {scale})')
-#     plt.tight_layout()
-#     plt.show()
+    for i, scale in enumerate(scales):
+        writer.add_image(f'Input STFT (scale {scale})', x_stfts[i][0], step, dataformats='HW')
+        writer.add_image(f'Output STFT (scale {scale})', y_stfts[i][0], step, dataformats='HW')
 
-# def plot_distance_spectrums(x, y, scales=[2048, 1024, 512, 256, 128]):
-#     x_stfts = multiscale_stft(x, scales, .75)
-#     y_stfts = multiscale_stft(y, scales, .75)
+def plot_distance_spectrums_tensorboard(writer, x, y, scales=[2048, 1024, 512, 256, 128], step=0):
+    x_stfts = multiscale_stft(x, scales, .75)
+    y_stfts = multiscale_stft(y, scales, .75)
     
-#     fig, axs = plt.subplots(len(scales), 2, figsize=(12, 4*len(scales)))
-#     for i, scale in enumerate(scales):
-#         lin_dist = (x_stfts[i] - y_stfts[i]).abs().cpu().numpy()[0]
-#         log_dist = (torch.log(x_stfts[i] + 1e-7) - torch.log(y_stfts[i] + 1e-7)).abs().cpu().numpy()[0]
+    for i, scale in enumerate(scales):
+        lin_dist = (x_stfts[i] - y_stfts[i]).abs()[0]
+        log_dist = (torch.log(x_stfts[i] + 1e-7) - torch.log(y_stfts[i] + 1e-7)).abs()[0]
         
-#         axs[i, 0].imshow(lin_dist, aspect='auto', origin='lower')
-#         axs[i, 0].set_title(f'Linear Distance (scale {scale})')
-#         axs[i, 1].imshow(log_dist, aspect='auto', origin='lower')
-#         axs[i, 1].set_title(f'Log Distance (scale {scale})')
-#     plt.tight_layout()
-#     plt.show()
+        writer.add_image(f'Linear Distance (scale {scale})', lin_dist, step, dataformats='HW')
+        writer.add_image(f'Log Distance (scale {scale})', log_dist, step, dataformats='HW')

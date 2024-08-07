@@ -5,7 +5,7 @@ from torch.nn.utils import clip_grad_norm_
 from network.ravepqmf import PQMF,  center_pad_next_pow_2
 from utils import config
 import os
-from network.metrics import plot_spectrums, plot_distance_spectrums
+from network.metrics import plot_distance_spectrums_tensorboard, plot_spectrums_tensorboard
 
 def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tensorboard_writer, num_epochs=25, device='cpu', n_bands=64, use_kl=False, sample_rate=44100):
     encoder.to(device)
@@ -111,9 +111,10 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
                 loss = criterion(output_decomposed, wet_audio_decomposed)
 
-                # if batch == 0: 
-                #     plot_spectrums(x, y)
-                #     plot_distance_spectrums(x, y)
+                if batch == 0: 
+                #     # Assuming x and y are your input tensors
+                    plot_spectrums_tensorboard(tensorboard_writer, x, y, step=0)
+                    plot_distance_spectrums_tensorboard(tensorboard_writer, x, y, step=0)
 
                 # output = output_decomposed
 
