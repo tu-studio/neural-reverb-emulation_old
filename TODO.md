@@ -3,9 +3,9 @@
 ## Preprocessing
 
 - Fix clipping
-    - If wet audio has values over 1, normalize wet and dry accordingly
+    - If wet audio has values over 1, normalize wet and dry accordingly --> done 
 
-- Understand and apply spectral loss
+- Understand and apply spectral loss --> done
     - plot spectrums of x and y
     - plot distance spectrums
 
