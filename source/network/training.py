@@ -37,13 +37,27 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             # Zero the parameter gradients
             optimizer.zero_grad()
 
+             # Pad both dry and wet audio to next power of 2
+            dry_audio = center_pad_next_pow_2(dry_audio)
+            wet_audio = center_pad_next_pow_2(wet_audio)
+
+            print(f"Dry audio shape after padding: {dry_audio.shape}")
+            print(f"Wet audio shape after padding: {wet_audio.shape}")
+
+            # Apply PQMF to input
+            dry_audio_decomposed = pqmf(dry_audio)
+            wet_audio_decomposed = pqmf(wet_audio)
+
+            print(f"Dry audio decomposed shape: {dry_audio_decomposed.shape}")
+            print(f"Wet audio decomposed shape: {wet_audio_decomposed.shape}")
+
             for batch in range(dry_audio.shape[0]):
 
                 print(f"Batch {batch}")
 
                 # TODO: This should not be necessary if preprocessing is done correctly
-                dry_audio_batch = dry_audio[batch, 0, :]
-                wet_audio_batch = wet_audio[batch, 0, :]
+                dry_audio_batch = dry_audio_decomposed[batch, 0, :]
+                wet_audio_batch = wet_audio_decomposed[batch, 0, :]
 
                 dry_audio_batch = dry_audio_batch.view(1, 1, -1)
                 wet_audio_batch = wet_audio_batch.view(1, 1, -1)
@@ -53,10 +67,6 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                     raise ValueError(f"Wet audio is not the same length than dry audio: {wet_audio_batch.shape[-1]} vs {dry_audio_batch.shape[-1]}")
             
                 dry_audio_batch, wet_audio_batch = dry_audio_batch.to(device), wet_audio_batch.to(device)
-
-                # Pad both dry and wet audio to next power of 2
-                dry_audio_batch = center_pad_next_pow_2(dry_audio_batch)
-                wet_audio_batch = center_pad_next_pow_2(wet_audio_batch)
 
                 print(f"Dry audio batch shape: {dry_audio_batch.shape}")
                 print(f"Wet audio batch shape: {wet_audio_batch.shape}")
@@ -105,9 +115,9 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                     plot_spectrums(x, y)
                     plot_distance_spectrums(x, y)
 
-                output = output_decomposed
+                # output = output_decomposed
 
-                # output = pqmf.inverse(output_decomposed)
+                output = pqmf.inverse(output_decomposed)
 
                 # Check that net outputs are the same length as the dry audio
                 if output.shape[-1] != dry_audio_batch.shape[-1]:
