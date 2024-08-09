@@ -22,47 +22,34 @@ class AudioDataset(Dataset):
 
     def __getitem__(self, idx):
         dry_audio, wet_audio = self.dry_wet_pairs[idx]
-        return torch.tensor(dry_audio, dtype=torch.float32), torch.tensor(wet_audio, dtype=torch.float32)
+        return torch.tensor(dry_audio), torch.tensor(wet_audio)
 
     def get_sample_rate(self):
         return self.sample_rate
     
-    @staticmethod
-    def separate_channels(audio):
-        # Convert to numpy array if it's not already
-        audio = np.array(audio)
-        
-        # If it's a 1D array, it's already a single channel
-        if audio.ndim == 1:
-            return [audio]
-        
-        # If it's a 2D array, separate channels
-        elif audio.ndim == 2:
-            # Check if channels are the first or second dimension
-            if audio.shape[0] == 1 or audio.shape[0] == 2:
-                return [channel for channel in audio]
-            else:
-                return [audio.T[0], audio.T[1]] if audio.shape[1] == 2 else [audio.T[0]]
-        
-        else:
-            raise ValueError(f"Unexpected audio shape: {audio.shape}. Expected 1D or 2D array.")
-
     @staticmethod
     def process_audio_pairs(pairs):
         processed_pairs = []
         for dry, wet in pairs:
             dry_channels = AudioDataset.separate_channels(dry)
             wet_channels = AudioDataset.separate_channels(wet)
-            
-            # Ensure dry and wet have the same number of channels
-            min_channels = min(len(dry_channels), len(wet_channels))
-            
-            # Ensure each channel is 1D
-            dry_channels = [channel.squeeze() for channel in dry_channels[:min_channels]]
-            wet_channels = [channel.squeeze() for channel in wet_channels[:min_channels]]
-            
-            processed_pairs.extend(zip(dry_channels, wet_channels))
+            if len(dry_channels) == 1 and len(wet_channels) == 1:
+                processed_pairs.append((dry_channels[0], wet_channels[0]))
+            elif len(dry_channels) == 2 and len(wet_channels) == 2:
+                processed_pairs.append((dry_channels[0], wet_channels[0]))
+                processed_pairs.append((dry_channels[1], wet_channels[1]))
+            else:
+                raise ValueError("Mismatched channel counts between dry and wet audio.")
         return processed_pairs
+
+    @staticmethod
+    def separate_channels(audio):
+        if audio.shape[0] == 1:
+            return [audio]  # Already mono, return as single-item list
+        elif audio.shape[0] == 2:
+            return [audio[0].reshape(1, -1), audio[1].reshape(1, -1)]  # Separate and reshape channels
+        else:
+            raise ValueError("Unexpected audio shape. Expected 1D or 2D array.")
 
     @staticmethod
     def save_to_pickle(dry_audio_files, wet_audio_files, filename):
