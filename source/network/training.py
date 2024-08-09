@@ -95,13 +95,14 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             # Forward pass through decoder
             net_outputs_decomposed = decoder(z, encoder_outputs)
 
-            output_decomposed = net_outputs_decomposed + dry_audio_batch
+            output_decomposed = net_outputs_decomposed
             # loss = criterion(output_decomposed, wet_audio_decomposed)
 
+            dry = pqmf.inverse(dry_audio_batch)
             output = pqmf.inverse(output_decomposed)
             wet = pqmf.inverse(wet_audio_batch)
 
-            loss = criterion(output, wet)
+            loss = criterion(output + dry, wet)
 
             if epoch == 0: 
             #     # Assuming x and y are your input tensors
