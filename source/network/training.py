@@ -15,10 +15,10 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
     pqmf = PQMF(100, n_bands).to(device)
 
     for epoch in range(num_epochs):
+
         #Training Loop
         encoder.train()
         decoder.train()
-
 
         #initialize epoch losses
         train_epoch_loss = 0
@@ -27,7 +27,7 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
         print(f"Train loader shape: {len(train_loader)}")
 
-        for epoch, (dry_audio, wet_audio) in enumerate(train_loader):
+        for batch, (dry_audio, wet_audio) in enumerate(train_loader):
             
             print(f"Epoch {epoch}")
 
@@ -56,11 +56,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 print(f"Batch {batch}")
 
                 # TODO: This should not be necessary if preprocessing is done correctly
-                dry_audio_batch = dry_audio_decomposed[batch, 0, :]
-                wet_audio_batch = wet_audio_decomposed[batch, 0, :]
-
-                dry_audio_batch = dry_audio_batch.view(1, 1, -1)
-                wet_audio_batch = wet_audio_batch.view(1, 1, -1)
+                dry_audio_batch = dry_audio_decomposed[batch]
+                wet_audio_batch = wet_audio_decomposed[batch]
 
                 # Throw error if wet audio is longer than dry audio
                 if wet_audio_batch.shape[-1] != dry_audio_batch.shape[-1]:
@@ -70,7 +67,6 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
                 print(f"Dry audio batch shape: {dry_audio_batch.shape}")
                 print(f"Wet audio batch shape: {wet_audio_batch.shape}")
-
         
                 # Forward pass through encoder
                 encoder_outputs = []
