@@ -51,38 +51,38 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             print(f"Dry audio decomposed shape: {dry_audio_decomposed.shape}")
             print(f"Wet audio decomposed shape: {wet_audio_decomposed.shape}")
 
-            for batch in range(dry_audio.shape[0]):
+            # for batch in range(dry_audio.shape[0]):
 
-                print(f"Batch {batch}")
+            #     print(f"Batch {batch}")
 
-                # TODO: This should not be necessary if preprocessing is done correctly
-                dry_audio_batch = dry_audio_decomposed[batch, :, :]
-                wet_audio_batch = wet_audio_decomposed[batch, :, :]
+            # TODO: This should not be necessary if preprocessing is done correctly
+            dry_audio_batch = dry_audio_decomposed
+            wet_audio_batch = wet_audio_decomposed
 
 
-                # Throw error if wet audio is longer than dry audio
-                if wet_audio_batch.shape[-1] != dry_audio_batch.shape[-1]:
-                    raise ValueError(f"Wet audio is not the same length than dry audio: {wet_audio_batch.shape[-1]} vs {dry_audio_batch.shape[-1]}")
-            
-                dry_audio_batch, wet_audio_batch = dry_audio_batch.to(device), wet_audio_batch.to(device)
-
-                print(f"Dry audio batch shape: {dry_audio_batch.shape}")
-                print(f"Wet audio batch shape: {wet_audio_batch.shape}")
+            # Throw error if wet audio is longer than dry audio
+            if wet_audio_batch.shape[-1] != dry_audio_batch.shape[-1]:
+                raise ValueError(f"Wet audio is not the same length than dry audio: {wet_audio_batch.shape[-1]} vs {dry_audio_batch.shape[-1]}")
         
-                # Forward pass through encoder
-                encoder_outputs = []
-                x = dry_audio_batch
+            dry_audio_batch, wet_audio_batch = dry_audio_batch.to(device), wet_audio_batch.to(device)
 
-                for block in encoder.blocks:
-                    x = block(x)
-                    encoder_outputs.append(x)
-        
-                # Get the final encoder output
-                z = encoder_outputs.pop()
+            print(f"Dry audio batch shape: {dry_audio_batch.shape}")
+            print(f"Wet audio batch shape: {wet_audio_batch.shape}")
+    
+            # Forward pass through encoder
+            encoder_outputs = []
+            x = dry_audio_batch
 
-                # Reverse the list of encoder outputs for the decoder
-                encoder_outputs = encoder_outputs[::-1]
-                encoder_outputs.append(dry_audio_batch)
+            for block in encoder.blocks:
+                x = block(x)
+                encoder_outputs.append(x)
+    
+            # Get the final encoder output
+            z = encoder_outputs.pop()
+
+            # Reverse the list of encoder outputs for the decoder
+            encoder_outputs = encoder_outputs[::-1]
+            encoder_outputs.append(dry_audio_batch)
 
                 # TODO: This should be done better and we don't care right now
                 # # Forward pass through encoder
@@ -92,37 +92,37 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 #     kl_div = (-0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()))/ mu.shape[-1]
                 #     train_epoch_kl_div += kl_div
 
-                # Forward pass through decoder
-                net_outputs_decomposed = decoder(z, encoder_outputs)
+            # Forward pass through decoder
+            net_outputs_decomposed = decoder(z, encoder_outputs)
 
-                output_decomposed = net_outputs_decomposed + dry_audio_batch
-                loss = criterion(output_decomposed, wet_audio_decomposed)
+            output_decomposed = net_outputs_decomposed + dry_audio_batch
+            loss = criterion(output_decomposed, wet_audio_decomposed)
 
-                output = pqmf.inverse(output_decomposed)
-                wet = pqmf.inverse(wet_audio_batch)
+            output = pqmf.inverse(output_decomposed)
+            wet = pqmf.inverse(wet_audio_batch)
 
                 # loss = criterion(output, wet)
 
-                if batch == 0: 
-                #     # Assuming x and y are your input tensors
-                    plot_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
-                    plot_distance_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
+            if epoch == 0: 
+            #     # Assuming x and y are your input tensors
+                plot_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
+                plot_distance_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
 
-                # output = output_decomposed
+            # output = output_decomposed
 
-                output = pqmf.inverse(output_decomposed)
+            output = pqmf.inverse(output_decomposed)
 
-                # Check that net outputs are the same length as the dry audio
-                if output.shape[-1] != dry_audio_batch.shape[-1]:
-                    raise ValueError(f"Net outputs are not the same length as the dry audio {output.shape[-1]} vs {dry_audio_batch.shape[-1]}")
-                
-                # if use_kl:
-                #     loss += kl_div
+            # Check that net outputs are the same length as the dry audio
+            if output.shape[-1] != dry_audio_batch.shape[-1]:
+                raise ValueError(f"Net outputs are not the same length as the dry audio {output.shape[-1]} vs {dry_audio_batch.shape[-1]}")
+            
+            # if use_kl:
+            #     loss += kl_div
 
-                # Add KL divergence to the loss
-                train_epoch_loss += loss 
-                
-                train_epoch_criterion += loss
+            # Add KL divergence to the loss
+            train_epoch_loss += loss 
+            
+            train_epoch_criterion += loss
 
             # Backward pass and optimization
             loss.backward()
