@@ -110,11 +110,11 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
             # output = output_decomposed
 
-            output = pqmf.inverse(output_decomposed)
+            # output = pqmf.inverse(output_decomposed)
 
             # Check that net outputs are the same length as the dry audio
-            if output.shape[-1] != dry_audio_batch.shape[-1]:
-                raise ValueError(f"Net outputs are not the same length as the dry audio {output.shape[-1]} vs {dry_audio_batch.shape[-1]}")
+            # if output.shape[-1] != dry_audio_batch.shape[-1]:
+            #     raise ValueError(f"Net outputs are not the same length as the dry audio {output.shape[-1]} vs {dry_audio_batch.shape[-1]}")
             
             # if use_kl:
             #     loss += kl_div
