@@ -25,4 +25,4 @@
 
 - Do spectral loss plots locally rather than on tensorboard.
 
-- Also plot signals of the PQMF. 
+- Also plot signals of the PQMF. time domain/ spectral/ 
