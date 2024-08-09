@@ -51,14 +51,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             print(f"Dry audio decomposed shape: {dry_audio_decomposed.shape}")
             print(f"Wet audio decomposed shape: {wet_audio_decomposed.shape}")
 
-            # for batch in range(dry_audio.shape[0]):
-
-            #     print(f"Batch {batch}")
-
-            # TODO: This should not be necessary if preprocessing is done correctly
             dry_audio_batch = dry_audio_decomposed
             wet_audio_batch = wet_audio_decomposed
-
 
             # Throw error if wet audio is longer than dry audio
             if wet_audio_batch.shape[-1] != dry_audio_batch.shape[-1]:
@@ -84,13 +78,13 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             encoder_outputs = encoder_outputs[::-1]
             encoder_outputs.append(dry_audio_batch)
 
-                # TODO: This should be done better and we don't care right now
-                # # Forward pass through encoder
-                # if use_kl:
-                #     mu, logvar = encoder(dry_audio_decomposed)
-                #     z = encoder.reparameterize(mu, logvar)
-                #     kl_div = (-0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()))/ mu.shape[-1]
-                #     train_epoch_kl_div += kl_div
+            # TODO: This should be done better and we don't care right now
+            # # Forward pass through encoder
+            # if use_kl:
+            #     mu, logvar = encoder(dry_audio_decomposed)
+            #     z = encoder.reparameterize(mu, logvar)
+            #     kl_div = (-0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()))/ mu.shape[-1]
+            #     train_epoch_kl_div += kl_div
 
             # Forward pass through decoder
             net_outputs_decomposed = decoder(z, encoder_outputs)
@@ -105,17 +99,9 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             loss = criterion(output + dry, wet)
 
             if epoch == 0: 
-            #     # Assuming x and y are your input tensors
+                # Assuming x and y are your input tensors
                 plot_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
                 plot_distance_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
-
-            # output = output_decomposed
-
-            # output = pqmf.inverse(output_decomposed)
-
-            # Check that net outputs are the same length as the dry audio
-            # if output.shape[-1] != dry_audio_batch.shape[-1]:
-            #     raise ValueError(f"Net outputs are not the same length as the dry audio {output.shape[-1]} vs {dry_audio_batch.shape[-1]}")
             
             # if use_kl:
             #     loss += kl_div
@@ -128,32 +114,27 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             # Backward pass and optimization
             loss.backward()
 
-            # # Gradient Clipping
-            # torch.nn.utils.clip_grad_norm_(encoder.parameters(), max_norm=1.0)
-            # torch.nn.utils.clip_grad_norm_(decoder.parameters(), max_norm=1.0)
+        optimizer.step()
 
-            optimizer.step()
+        train_avg_epoch_loss = train_epoch_loss / len(train_loader)
+        train_avg_epoch_loss_criterion = train_epoch_criterion / len(train_loader)  
+        if use_kl:
+            train_avg_epoch_kl_div = train_epoch_kl_div / len(train_loader)
 
-        
-            train_avg_epoch_loss = train_epoch_loss / len(train_loader)
-            train_avg_epoch_loss_criterion = train_epoch_criterion / len(train_loader)  
-            if use_kl:
-                train_avg_epoch_kl_div = train_epoch_kl_div / len(train_loader)
+        # Log loss
+        tensorboard_writer.add_scalar("Loss/ training loss", train_avg_epoch_loss, epoch)
+        tensorboard_writer.add_scalar("Loss/ training criterion", train_avg_epoch_loss_criterion, epoch)
+        if use_kl:
+            tensorboard_writer.add_scalar("Loss/training kl_div", train_avg_epoch_kl_div, epoch)
+        # Log audio samples
+        print(dry_audio.shape)
+        print(wet_audio.shape)
+        print(output.shape)
+        tensorboard_writer.add_audio("Audio/TCN_Input", dry_audio[0].cpu(), epoch, sample_rate=sample_rate)
+        tensorboard_writer.add_audio("Audio/TCN_Target", wet_audio[0].cpu(), epoch, sample_rate=sample_rate)
+        tensorboard_writer.add_audio("Audio/TCN_output", output[0].cpu(), epoch, sample_rate=sample_rate)
 
-            # Log loss
-            tensorboard_writer.add_scalar("Loss/ training loss", train_avg_epoch_loss, epoch)
-            tensorboard_writer.add_scalar("Loss/ training criterion", train_avg_epoch_loss_criterion, epoch)
-            if use_kl:
-                tensorboard_writer.add_scalar("Loss/training kl_div", train_avg_epoch_kl_div, epoch)
-            # Log audio samples
-            print(dry_audio.shape)
-            print(wet_audio.shape)
-            print(output.shape)
-            tensorboard_writer.add_audio("Audio/TCN_Input", dry_audio[0].cpu(), epoch, sample_rate=sample_rate)
-            tensorboard_writer.add_audio("Audio/TCN_Target", wet_audio[0].cpu(), epoch, sample_rate=sample_rate)
-            tensorboard_writer.add_audio("Audio/TCN_output", output[0].cpu(), epoch, sample_rate=sample_rate)
-
-            print(f'Epoch {epoch}/{num_epochs}, Training Loss: {train_avg_epoch_loss}')
+        print(f'Epoch {epoch}/{num_epochs}, Training Loss: {train_avg_epoch_loss}')
 
         # # Validation loop
         # encoder.eval()
