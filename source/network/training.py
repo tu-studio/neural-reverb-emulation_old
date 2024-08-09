@@ -59,8 +59,6 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 dry_audio_batch = dry_audio_decomposed[batch, :, :]
                 wet_audio_batch = wet_audio_decomposed[batch, :, :]
 
-                dry_audio_batch = dry_audio_batch.view(1, -1, -1)
-                wet_audio_batch = wet_audio_batch.view(1, -1, -1)
 
                 # Throw error if wet audio is longer than dry audio
                 if wet_audio_batch.shape[-1] != dry_audio_batch.shape[-1]:
