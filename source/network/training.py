@@ -111,6 +111,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             
             train_epoch_criterion += loss
 
+            print(f"Loss: {loss}")
+
             # Backward pass and optimization
             loss.backward()
 
