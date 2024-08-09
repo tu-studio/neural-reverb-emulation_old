@@ -9,9 +9,9 @@
     - plot spectrums of x and y
     - plot distance spectrums
 
-- Fix batches name in AudioDataset use couples or similar
+- Fix batches name in AudioDataset use couples or similar --> done
 - Think about mono and stereo aglomeration in preprocessing
-    - Do not throw away the mono samples
+    - Do not throw away the mono samples --> done
 
 - Understand and apply pqmf
     - do decomposition
