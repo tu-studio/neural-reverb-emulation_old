@@ -225,8 +225,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
         # if use_kl:
         #     tensorboard_writer.add_scalar("Loss/validation kl_div", val_avg_epoch_kl_div, epoch)
 
-            print("Copying logs to host")
-            os.system(f"rsync -rv --progress --inplace {tensorboard_writer.get_logdir()} {config.get_env_variable('TUSTU_TENSORBOARD_HOST')}:Data/{config.get_env_variable('TUSTU_PROJECT_NAME')}")
+        print("Copying logs to host")
+        os.system(f"rsync -rv --progress --inplace {tensorboard_writer.get_logdir()} {config.get_env_variable('TUSTU_TENSORBOARD_HOST')}:Data/{config.get_env_variable('TUSTU_PROJECT_NAME')}")
 
     tensorboard_writer.flush()
 
