@@ -56,8 +56,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 print(f"Batch {batch}")
 
                 # TODO: This should not be necessary if preprocessing is done correctly
-                dry_audio_batch = dry_audio_decomposed[batch, 0, :]
-                wet_audio_batch = wet_audio_decomposed[batch, 0, :]
+                dry_audio_batch = dry_audio_decomposed[batch]
+                wet_audio_batch = wet_audio_decomposed[batch]
 
                 dry_audio_batch = dry_audio_batch.view(1, 1, -1)
                 wet_audio_batch = wet_audio_batch.view(1, 1, -1)
