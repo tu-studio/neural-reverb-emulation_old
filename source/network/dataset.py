@@ -90,5 +90,5 @@ class AudioDataset(Dataset):
     
     @staticmethod
     def load_from_pt(filename):
-        data = torch.load(filename)
+        data = torch.load(filename, weights_only=False)
         return data
