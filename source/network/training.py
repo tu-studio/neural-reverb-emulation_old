@@ -56,8 +56,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 print(f"Batch {batch}")
 
                 # TODO: This should not be necessary if preprocessing is done correctly
-                dry_audio_batch = dry_audio_decomposed[batch]
-                wet_audio_batch = wet_audio_decomposed[batch]
+                dry_audio_batch = dry_audio_decomposed[batch, 0, :]
+                wet_audio_batch = wet_audio_decomposed[batch, 0, :]
 
                 dry_audio_batch = dry_audio_batch.view(1, 1, -1)
                 wet_audio_batch = wet_audio_batch.view(1, 1, -1)
@@ -71,19 +71,10 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 print(f"Dry audio batch shape: {dry_audio_batch.shape}")
                 print(f"Wet audio batch shape: {wet_audio_batch.shape}")
 
-                # # Apply PQMF to input
-                # dry_audio_decomposed = pqmf(dry_audio_batch)
-                # wet_audio_decomposed = pqmf(wet_audio_batch)
-
-                # print(f"Dry audio decomposed shape: {dry_audio_decomposed.shape}")
-                # print(f"Wet audio decomposed shape: {wet_audio_decomposed.shape}")
-
-                dry_audio_decomposed = dry_audio_batch
-                wet_audio_decomposed = wet_audio_batch
-    
+        
                 # Forward pass through encoder
                 encoder_outputs = []
-                x = dry_audio_decomposed
+                x = dry_audio_batch
 
                 for block in encoder.blocks:
                     x = block(x)
@@ -94,7 +85,7 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
 
                 # Reverse the list of encoder outputs for the decoder
                 encoder_outputs = encoder_outputs[::-1]
-                encoder_outputs.append(dry_audio_decomposed)
+                encoder_outputs.append(dry_audio_batch)
 
                 # TODO: This should be done better and we don't care right now
                 # # Forward pass through encoder
@@ -107,12 +98,11 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 # Forward pass through decoder
                 net_outputs_decomposed = decoder(z, encoder_outputs)
 
-                output_decomposed = net_outputs_decomposed + dry_audio_decomposed
-
+                output_decomposed = net_outputs_decomposed + dry_audio_batch
                 # loss = criterion(output_decomposed, wet_audio_decomposed)
 
                 output = pqmf.inverse(output_decomposed)
-                wet = pqmf.inverse(wet_audio_decomposed)
+                wet = pqmf.inverse(wet_audio_batch)
 
                 loss = criterion(output, wet)
 
