@@ -93,8 +93,8 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
                 plot_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
                 plot_distance_spectrums_tensorboard(tensorboard_writer, output, wet, step=0)
             
-            # if use_kl:
-            #     loss += kl_div
+            if use_kl:
+                loss += kl_div
 
             # Add KL divergence to the loss
             train_epoch_loss += loss 
