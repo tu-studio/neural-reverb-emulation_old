@@ -19,7 +19,7 @@
     - Compare the shapes
     - do reconstruction
 
-- Do the block results list directly in the encoder achitecture
+- Do the block results list directly in the encoder achitecture --> Done
 
 - Normalize clipping by pair not individually !  --> Done
 

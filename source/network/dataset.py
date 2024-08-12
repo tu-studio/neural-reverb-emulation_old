@@ -55,6 +55,16 @@ class AudioDataset(Dataset):
         return dry, wet
 
     @staticmethod
+    def separate_channels(audio):
+        if audio.shape[0] == 1:
+            return [audio]  # Already mono, return as single-item list
+        elif audio.shape[0] == 2:
+            return [audio[0].reshape(1, -1), audio[1].reshape(1, -1)]  # Separate and reshape channels
+        else:
+            raise ValueError("Unexpected audio shape. Expected 1D or 2D array.")
+
+
+    @staticmethod
     def save_to_pickle(dry_audio_files, wet_audio_files, filename):
         def process_audio(file_path):
             with AudioFile(file_path) as f:
