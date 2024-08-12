@@ -33,23 +33,26 @@ class AudioDataset(Dataset):
         for dry, wet in pairs:
             dry_channels = AudioDataset.separate_channels(dry)
             wet_channels = AudioDataset.separate_channels(wet)
+            
             if len(dry_channels) == 1 and len(wet_channels) == 1:
-                processed_pairs.append((dry_channels[0], wet_channels[0]))
+                normalized_dry, normalized_wet = AudioDataset.normalize_pair(dry_channels[0], wet_channels[0])
+                processed_pairs.append((normalized_dry, normalized_wet))
             elif len(dry_channels) == 2 and len(wet_channels) == 2:
-                processed_pairs.append((dry_channels[0], wet_channels[0]))
-                processed_pairs.append((dry_channels[1], wet_channels[1]))
+                normalized_dry_left, normalized_wet_left = AudioDataset.normalize_pair(dry_channels[0], wet_channels[0])
+                normalized_dry_right, normalized_wet_right = AudioDataset.normalize_pair(dry_channels[1], wet_channels[1])
+                processed_pairs.append((normalized_dry_left, normalized_wet_left))
+                processed_pairs.append((normalized_dry_right, normalized_wet_right))
             else:
                 raise ValueError("Mismatched channel counts between dry and wet audio.")
         return processed_pairs
 
     @staticmethod
-    def separate_channels(audio):
-        if audio.shape[0] == 1:
-            return [audio]  # Already mono, return as single-item list
-        elif audio.shape[0] == 2:
-            return [audio[0].reshape(1, -1), audio[1].reshape(1, -1)]  # Separate and reshape channels
-        else:
-            raise ValueError("Unexpected audio shape. Expected 1D or 2D array.")
+    def normalize_pair(dry, wet):
+        max_amplitude = max(np.max(np.abs(dry)), np.max(np.abs(wet)))
+        if max_amplitude > 1.0:
+            scaling_factor = 1.0 / max_amplitude
+            return dry * scaling_factor, wet * scaling_factor
+        return dry, wet
 
     @staticmethod
     def save_to_pickle(dry_audio_files, wet_audio_files, filename):
