@@ -64,27 +64,17 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             print(f"Wet audio batch shape: {wet_audio_batch.shape}")
     
             # Forward pass through encoder
-            encoder_outputs = []
-            x = dry_audio_batch
-
-            for block in encoder.blocks:
-                x = block(x)
-                encoder_outputs.append(x)
-    
-            # Get the final encoder output
-            z = encoder_outputs.pop()
+            if use_kl:
+                mu, logvar, encoder_outputs = encoder(dry_audio_decomposed)
+                z = encoder.reparameterize(mu, logvar)
+                kl_div = (-0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()))/ mu.shape[-1]
+                train_epoch_kl_div += kl_div
+            else:
+                encoder_outputs = encoder(dry_audio_decomposed)
+                z = encoder_outputs.pop()
 
             # Reverse the list of encoder outputs for the decoder
             encoder_outputs = encoder_outputs[::-1]
-            encoder_outputs.append(dry_audio_batch)
-
-            # TODO: This should be done better and we don't care right now
-            # # Forward pass through encoder
-            # if use_kl:
-            #     mu, logvar = encoder(dry_audio_decomposed)
-            #     z = encoder.reparameterize(mu, logvar)
-            #     kl_div = (-0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp()))/ mu.shape[-1]
-            #     train_epoch_kl_div += kl_div
 
             # Forward pass through decoder
             net_outputs_decomposed = decoder(z, encoder_outputs)

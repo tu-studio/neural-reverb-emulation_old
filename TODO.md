@@ -21,8 +21,10 @@
 
 - Do the block results list directly in the encoder achitecture
 
-- Normalize clipping by pair not individually !
+- Normalize clipping by pair not individually !  --> Done
 
 - Do spectral loss plots locally rather than on tensorboard.
 
 - Also plot signals of the PQMF. time domain/ spectral/ 
+
+- plot both in time and then in fft. 
