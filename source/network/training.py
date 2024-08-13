@@ -24,14 +24,14 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
         train_epoch_kl_div = 0
         train_epoch_criterion = 0
 
-        print(f"Train loader shape: {len(train_loader)}")
+        # print(f"Epoch {epoch}")
+
+        # print(f"Train loader shape: {len(train_loader)}")
 
         for batch, (dry_audio, wet_audio) in enumerate(train_loader):
-            
-            print(f"Epoch {epoch}")
 
-            print(f"Dry audio shape: {dry_audio.shape}")
-            print(f"Wet audio shape: {wet_audio.shape}")
+            # print(f"Dry audio shape: {dry_audio.shape}")
+            # print(f"Wet audio shape: {wet_audio.shape}")
 
             # Zero the parameter gradients
             optimizer.zero_grad()
@@ -40,27 +40,21 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             dry_audio = center_pad_next_pow_2(dry_audio)
             wet_audio = center_pad_next_pow_2(wet_audio)
 
-            print(f"Dry audio shape after padding: {dry_audio.shape}")
-            print(f"Wet audio shape after padding: {wet_audio.shape}")
+            # print(f"Dry audio shape after padding: {dry_audio.shape}")
+            # print(f"Wet audio shape after padding: {wet_audio.shape}")
 
             # Apply PQMF to input
             dry_audio_decomposed = pqmf(dry_audio)
             wet_audio_decomposed = pqmf(wet_audio)
 
-            print(f"Dry audio decomposed shape: {dry_audio_decomposed.shape}")
-            print(f"Wet audio decomposed shape: {wet_audio_decomposed.shape}")
-
-            dry_audio_batch = dry_audio_decomposed
-            wet_audio_batch = wet_audio_decomposed
+            # print(f"Dry audio decomposed shape: {dry_audio_decomposed.shape}")
+            # print(f"Wet audio decomposed shape: {wet_audio_decomposed.shape}")
 
             # Throw error if wet audio is longer than dry audio
-            if wet_audio_batch.shape[-1] != dry_audio_batch.shape[-1]:
-                raise ValueError(f"Wet audio is not the same length than dry audio: {wet_audio_batch.shape[-1]} vs {dry_audio_batch.shape[-1]}")
+            if wet_audio_decomposed.shape[-1] != dry_audio_decomposed.shape[-1]:
+                raise ValueError(f"Wet audio is not the same length than dry audio: {wet_audio_decomposed.shape[-1]} vs {dry_audio_decomposed.shape[-1]}")
         
-            dry_audio_batch, wet_audio_batch = dry_audio_batch.to(device), wet_audio_batch.to(device)
-
-            print(f"Dry audio batch shape: {dry_audio_batch.shape}")
-            print(f"Wet audio batch shape: {wet_audio_batch.shape}")
+            dry_audio_decomposed, wet_audio_decomposed = dry_audio_decomposed.to(device), wet_audio_decomposed.to(device)
     
             # Forward pass through encoder
             if use_kl:
@@ -79,22 +73,20 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
             net_outputs_decomposed = decoder(z, encoder_outputs)
 
             output_decomposed = net_outputs_decomposed
-            # loss = criterion(output_decomposed, wet_audio_decomposed)
 
-            dry = pqmf.inverse(dry_audio_batch)
+            dry = pqmf.inverse(dry_audio_decomposed)
             output = pqmf.inverse(output_decomposed)
-            wet = pqmf.inverse(wet_audio_batch)
+            wet = pqmf.inverse(wet_audio_decomposed)
 
             loss = criterion(output + dry, wet)
+
+            train_epoch_criterion += loss
             
             if use_kl:
                 loss += kl_div
 
-            # Add KL divergence to the loss
             train_epoch_loss += loss 
             
-            train_epoch_criterion += loss
-
             print(f"Loss: {loss}")
 
             # Backward pass and optimization
@@ -113,9 +105,9 @@ def train(encoder, decoder, train_loader, val_loader, criterion, optimizer, tens
         if use_kl:
             tensorboard_writer.add_scalar("Loss/training kl_div", train_avg_epoch_kl_div, epoch)
         # Log audio samples
-        print(dry_audio.shape)
-        print(wet_audio.shape)
-        print(output.shape)
+        # print(dry_audio.shape)
+        # print(wet_audio.shape)
+        # print(output.shape)
         tensorboard_writer.add_audio("Audio/TCN_Input", dry_audio[0].cpu(), epoch, sample_rate=sample_rate)
         tensorboard_writer.add_audio("Audio/TCN_Target", wet_audio[0].cpu(), epoch, sample_rate=sample_rate)
         tensorboard_writer.add_audio("Audio/TCN_output", output[0].cpu(), epoch, sample_rate=sample_rate)
