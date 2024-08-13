@@ -36,8 +36,7 @@ def lin_distance(x, y):
 def log_distance(x, y):
     return abs(torch.log(x + 1e-7) - torch.log(y + 1e-7)).mean()
 
-def spectral_distance(x, y):
-    scales = [2048, 1024, 512, 256, 128]
+def spectral_distance(x, y, scales = [2048, 1024, 512, 256, 128]):
     x = multiscale_stft(x, scales, .75)
     y = multiscale_stft(y, scales, .75)
 
