@@ -45,22 +45,3 @@ def spectral_distance(x, y):
     log = sum(list(map(log_distance, x, y)))
 
     return lin + log
-
-def plot_spectrums_tensorboard(writer, x, y, scales=[2048, 1024, 512, 256, 128], step=0):
-    x_stfts = multiscale_stft(x, scales, .75)
-    y_stfts = multiscale_stft(y, scales, .75)
-    
-    for i, scale in enumerate(scales):
-        writer.add_image(f'Input STFT (scale {scale})', x_stfts[i][0], step, dataformats='HW')
-        writer.add_image(f'Output STFT (scale {scale})', y_stfts[i][0], step, dataformats='HW')
-
-def plot_distance_spectrums_tensorboard(writer, x, y, scales=[2048, 1024, 512, 256, 128], step=0):
-    x_stfts = multiscale_stft(x, scales, .75)
-    y_stfts = multiscale_stft(y, scales, .75)
-    
-    for i, scale in enumerate(scales):
-        lin_dist = (x_stfts[i] - y_stfts[i]).abs()[0]
-        log_dist = (torch.log(x_stfts[i] + 1e-7) - torch.log(y_stfts[i] + 1e-7)).abs()[0]
-        
-        writer.add_image(f'Linear Distance (scale {scale})', lin_dist, step, dataformats='HW')
-        writer.add_image(f'Log Distance (scale {scale})', log_dist, step, dataformats='HW')
