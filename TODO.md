@@ -14,17 +14,17 @@
     - Do not throw away the mono samples --> done
 
 - Understand and apply pqmf
-    - do decomposition
-    - listen to audio after decomposition
-    - Compare the shapes
-    - do reconstruction
+    - do decomposition  --> done
+    - listen to audio after decomposition --> DOne 
+    - Compare the shapes --> Done
+    - do reconstruction --> Done
 
 - Do the block results list directly in the encoder achitecture --> Done
 
 - Normalize clipping by pair not individually !  --> Done
 
-- Do spectral loss plots locally rather than on tensorboard.
+- Do spectral loss plots locally rather than on tensorboard. --> Done
 
-- Also plot signals of the PQMF. time domain/ spectral/ 
+- Also plot signals of the PQMF. time domain/ spectral/ --> Done
 
-- plot both in time and then in fft. 
+- plot both in time and then in fft. --> Done
