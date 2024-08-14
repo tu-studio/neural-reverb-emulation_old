@@ -28,3 +28,7 @@
 - Also plot signals of the PQMF. time domain/ spectral/ --> Done
 
 - plot both in time and then in fft. --> Done
+
+- Have a properly wet signal
+
+- Have a right plot with right colors, make code more minimal
