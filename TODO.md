@@ -29,6 +29,20 @@
 
 - plot both in time and then in fft. --> Done
 
-- Have a properly wet signal
+- Have a properly wet signal --> Done
 
-- Have a right plot with right colors, make code more minimal
+- Have a right plot with right colors, make code more minimal --> Done
+
+- Investigate log distance without adding small value
+
+- Clean spectral notebook
+
+- Also do PQMF on white noise --> Done 
+
+- Understand Micha notebook about PQMF
+
+- write in big our issue
+
+- strip down notebook but keep formulas and important shut
+
+- Smoothen the spectrums with window averaging
